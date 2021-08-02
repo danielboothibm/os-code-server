@@ -19,8 +19,8 @@ RUN . /etc/lsb-release && \
     apt-get upgrade -y && \
     apt-get install -y  \
       sudo \
-      openssl \
-      net-tools \
+    #   openssl \
+    #   net-tools \
       jq \
       git \
       locales \ 
@@ -30,7 +30,6 @@ RUN . /etc/lsb-release && \
       python3-pip \
       ansible \
       bash-completion \
-      vim \
       nodejs && \
     rm -rf /var/lib/apt/lists/* && \
     apt clean
