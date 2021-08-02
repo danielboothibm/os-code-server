@@ -33,7 +33,7 @@ RUN . /etc/lsb-release && \
       ansible \
       bash-completion \
       vim \
-      openssh-client && \ 
+    #   openssh-client && \ 
       nodejs && \
     rm -rf /var/lib/apt/lists/* && \
     apt clean
