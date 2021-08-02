@@ -1,4 +1,4 @@
-FROM alpine:latest
+FROM docker:latest
 
 ENV TZ=Europe/London
 

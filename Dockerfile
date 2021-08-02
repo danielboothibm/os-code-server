@@ -21,19 +21,16 @@ RUN . /etc/lsb-release && \
       sudo \
       openssl \
       net-tools \
-    #   openvpn \
       jq \
       git \
       locales \ 
       curl \
       dumb-init \
       wget \
-      httpie \
       python3-pip \
       ansible \
       bash-completion \
       vim \
-    #   openssh-client && \ 
       nodejs && \
     rm -rf /var/lib/apt/lists/* && \
     apt clean
