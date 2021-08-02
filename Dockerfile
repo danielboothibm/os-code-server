@@ -21,7 +21,7 @@ RUN . /etc/lsb-release && \
       sudo \
       openssl \
       net-tools \
-      openvpn \
+    #   openvpn \
       jq \
       git \
       locales \ 
@@ -35,11 +35,11 @@ RUN . /etc/lsb-release && \
       vim \
       openssh-client && \ 
       nodejs && \
-    npm install --global yarn && \
     rm -rf /var/lib/apt/lists/* && \
     apt clean
 
 RUN locale-gen en_US.UTF-8 && \
+    npm install --global yarn && \
     cd /tmp && \
 # install code-server
     ansible localhost -m apt -a "deb=$(curl -s https://api.github.com/repos/cdr/code-server/releases/latest |  jq -r '.assets[] | select(.browser_download_url | contains("amd64.deb")) | .browser_download_url')" && \
