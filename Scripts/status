@@ -3,6 +3,8 @@ oc whoami --show-token > $HOME/.usertoken.txt
 oc whoami --show-server > $HOME/.userserver.txt
 oc login --token=$(cat $HOME/.token.txt) --server=$(cat $HOME/.server.txt) --insecure-skip-tls-verify="false" > /dev/null 2>&1 || { echo "login not ok. Exit code: $?"; exit 1; }
 
+oc project os-code > /dev/null 2>&1
+
 echo "Build status:"
 
 oc -n os-code get build -l "app=code-server"
