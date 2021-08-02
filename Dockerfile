@@ -4,7 +4,6 @@ ENV LANG=en_US.UTF-8 \
     LC_ALL=en_US.UTF-8 \
     LANGUAGE=en_US.UTF-8 \
     TZ=Europe/London \
-    # CODER_PASSWORD="$(cat /tmp/password.txt)" \
     oc_version="v3.11.0" \
     oc_version_commit="0cbc58b" \
     PATH="${PATH}:/home/coder/.local/bin"
@@ -19,8 +18,6 @@ RUN . /etc/lsb-release && \
     apt-get upgrade -y && \
     apt-get install -y  \
       sudo \
-    #   openssl \
-    #   net-tools \
       jq \
       git \
       locales \ 
