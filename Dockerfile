@@ -39,8 +39,8 @@ RUN . /etc/lsb-release && \
 
 RUN locale-gen en_US.UTF-8 && \
     cd /tmp && \
-    openssl rand -base64 16 > password.txt && \
-    export CODER_PASSWORD=$(cat password.txt) && \
+    # openssl rand -base64 16 > password.txt && \
+    # export CODER_PASSWORD=$(cat password.txt) && \
 # install code-server
     ansible localhost -m apt -a "deb=$(curl -s https://api.github.com/repos/cdr/code-server/releases/latest |  jq -r '.assets[] | select(.browser_download_url | contains("amd64.deb")) | .browser_download_url')" && \
 # install openshift/kubernetes client tools
