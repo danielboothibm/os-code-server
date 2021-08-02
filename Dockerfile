@@ -33,8 +33,8 @@ RUN . /etc/lsb-release && \
       ansible \
       bash-completion \
       vim \
-      openssh-client \ 
-      npm && \
+      openssh-client && \ 
+      nodejs && \
     npm install --global yarn && \
     rm -rf /var/lib/apt/lists/* && \
     apt clean
