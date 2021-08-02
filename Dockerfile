@@ -32,7 +32,7 @@ RUN . /etc/lsb-release && \
       python3-pip \
       ansible \
       bash-completion \
-      vi \
+      vim \
       openssh-client && \ 
     npm install -g npm && \
     npm install --global yarn && \
