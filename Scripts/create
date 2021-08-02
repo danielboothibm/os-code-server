@@ -16,5 +16,5 @@ oc login --token=$(cat $HOME/.usertoken.txt) --server=$(cat $HOME/.server.txt) >
 rm -rf $HOME/.usertoken.txt > /dev/null 2>&1
 echo "Server will usually take a few minutes to deploy"
 echo "Your code server will be hosted at: https://$(oc get routes -n os-code code-server -o=jsonpath='{ .spec.host }')"
-echo "You can see the status of your environment and access credentials by running:"
+echo "You can see the status of your build and access credentials by running:"
 echo "os-code status"

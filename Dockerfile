@@ -21,7 +21,6 @@ RUN . /etc/lsb-release && \
       jq \
       git \
       locales \ 
-      curl \
       dumb-init \
       wget \
       python3-pip \

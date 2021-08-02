@@ -10,6 +10,7 @@ RUN apk update  && \
         wget \
         ansible \
         sudo \
-        jq 
+        openrc && \
+    rm -rf /var/lib/apt/lists/*
 
-RUN curl -fsSL https://code-server.dev/install.sh | sh
+RUN cd /tmp && 
