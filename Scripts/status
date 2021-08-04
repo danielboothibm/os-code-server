@@ -1,13 +1,11 @@
 #!/bin/bash
-oc whoami --show-token > $HOME/.usertoken.txt
-oc whoami --show-server > $HOME/.userserver.txt
-oc login --token=$(cat $HOME/.token.txt) --server=$(cat $HOME/.server.txt) --insecure-skip-tls-verify="false" > /dev/null 2>&1 || { echo "login not ok. Exit code: $?"; exit 1; }
+oc whoami --show-token | base64 > $HOME/.usertoken.txt
+oc whoami --show-server | base64 > $HOME/.userserver.txt
+oc login --token=$(cat $HOME/.token.txt | base64 --decode) --server=$(cat $HOME/.server.txt | base64 --decode) --insecure-skip-tls-verify="false" > /dev/null 2>&1 || { echo "login not ok. Exit code: $?"; exit 1; }
 
 oc project os-code > /dev/null 2>&1
 
-echo "Build status:"
-
-oc -n os-code get build -l "app=code-server"
+echo "Build $(oc -n os-code describe build -l "app=code-server" | grep Status)"
 
 echo ""
 
@@ -21,5 +19,5 @@ echo "The password to sign in is:"
 
 oc exec $(oc -n os-code get pod -l "app=code-server" -o jsonpath='{.items[*].metadata.name}') -- cat /home/coder/.config/code-server/config.yaml | grep password:
 
-oc login --token=$(cat $HOME/.usertoken.txt) --server=$(cat $HOME/.userserver.txt) > /dev/null 2>&1
+oc login --token=$(cat $HOME/.usertoken.txt | base64 --decode) --server=$(cat $HOME/.userserver.txt | base64 --decode) > /dev/null 2>&1
 rm -rf $HOME/.usertoken.txt $HOME/.userserver.txt > /dev/null 2>&1
