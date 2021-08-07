@@ -2,6 +2,10 @@
 
 export HOME=/home/coder
 
+if [ -w /etc/passwd ]; then
+  echo "user:x:$(id -u):$(id -g):user user:${HOME}:/bin/bash" >> /etc/passwd
+fi
+
 ### Display code-server version:
 echo
 echo "----------------------------------------------"
