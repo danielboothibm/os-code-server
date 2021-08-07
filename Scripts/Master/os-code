@@ -2,7 +2,7 @@
 
 if [ -n "$1" ]; then
 
-	bash $1
+	bash $HOME/os-code-server/Scripts/$1
 
 else
 
