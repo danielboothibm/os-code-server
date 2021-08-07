@@ -9,6 +9,7 @@ else
 	echo "Options available: "
     echo "  Create (Creates a new code server on currently authenticated openshift cluster)"
     echo "  Status (Shows status of code server)"
-    echo "  Destroy (Destroys the most recently deployed code server"
+    echo "  Destroy (Destroys the most recently deployed code server)"
+    echo "  Update"
 
 fi

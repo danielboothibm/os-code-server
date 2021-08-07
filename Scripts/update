@@ -1,4 +1,4 @@
 #!/bin/bash
-ech "Pulling updates"
-gp > /dev/null 2>&1
-echo "Application up to date
+echo "Pulling updates"
+git pull > /dev/null 2>&1
+echo "Application up to date"
