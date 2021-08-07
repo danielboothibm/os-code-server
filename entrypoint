@@ -1,13 +1,6 @@
 #!/bin/bash
 
 export HOME=/home/coder
-# export PASSWORD=${CODER_PASSWORD}
-# export USER_ID=$(id -u)
-# export GROUP_ID=$(id -g)
-
-if [ -w /etc/passwd ]; then
-  echo "user:x:$(id -u):$(id -g):user user:${HOME}:/bin/bash" >> /etc/passwd
-fi
 
 ### Display code-server version:
 echo
