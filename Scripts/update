@@ -1,4 +1,5 @@
 #!/bin/bash
 echo "Pulling updates"
+cd $HOME/os-code-server
 git pull > /dev/null 2>&1
 echo "Application up to date"
