@@ -5,7 +5,7 @@ if [ -n "$1" ]; then
 	bash $HOME/os-code-server/Scripts/$1
 
 else
-    echo "Quinn"
+    echo ""
     echo "NOTE: To initialize a new code you must be authenticated with a cluster in your terminal session"
     echo ""
 	echo "Options available: "
