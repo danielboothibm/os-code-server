@@ -6,6 +6,7 @@ echo "Deleting server..."
 oc delete all --all -n os-code-$(whoami) > /dev/null 2>&1
 oc project default > /dev/null 2>&1
 oc delete project/os-code-$(whoami) > /dev/null 2>&1
+oc logout > /dev/null 2>&1
 oc login --token=$(cat $HOME/.usertoken.txt | base64 --decode) --server=$(cat $HOME/.userserver.txt | base64 --decode) > /dev/null 2>&1
 rm -rf $HOME/.usertoken.txt $HOME/.server.txt $HOME/.token.txt $HOME/.userserver.txt > /dev/null 2>&1
 sleep 10 

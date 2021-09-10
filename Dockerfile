@@ -26,6 +26,7 @@ RUN . /etc/lsb-release && \
       python3-pip \
       ansible \
       bash-completion \
+      rsync \
       nodejs && \
     rm -rf /var/lib/apt/lists/* && \
     apt clean

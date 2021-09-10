@@ -19,5 +19,6 @@ echo "The password to sign in is:"
 
 oc exec $(oc -n os-code-$(whoami) get pod -l "app=code-server" -o jsonpath='{.items[*].metadata.name}') -- cat /home/coder/.config/code-server/config.yaml | grep password:
 
+oc logout > /dev/null 2>&1
 oc login --token=$(cat $HOME/.usertoken.txt | base64 --decode) --server=$(cat $HOME/.userserver.txt | base64 --decode) > /dev/null 2>&1
 rm -rf $HOME/.usertoken.txt $HOME/.userserver.txt > /dev/null 2>&1
