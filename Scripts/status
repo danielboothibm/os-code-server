@@ -5,7 +5,7 @@ oc login --token=$(cat $HOME/.token.txt | base64 --decode) --server=$(cat $HOME/
 
 oc project os-code-$(whoami) > /dev/null 2>&1
 
-echo "Build $(oc -n os-code-$(whoami) describe build -l "app=code-server" | grep Status)"
+echo "Build status: $(oc -n os-code-$(whoami) describe build -l "app=code-server" | grep Status | awk '{print $2}')"
 
 echo ""
 
@@ -17,7 +17,7 @@ echo ""
 
 echo "The password to sign in is:"
 
-oc exec $(oc -n os-code-$(whoami) get pod -l "app=code-server" -o jsonpath='{.items[*].metadata.name}') -- cat /home/coder/.config/code-server/config.yaml | grep password:
+oc exec $(oc -n os-code-$(whoami) get pod -l "app=code-server" -o jsonpath='{.items[*].metadata.name}') -- cat /home/coder/.config/code-server/config.yaml | grep password: | awk '{print $2}' || { echo "Build pending...";}
 
 oc logout > /dev/null 2>&1
 oc login --token=$(cat $HOME/.usertoken.txt | base64 --decode) --server=$(cat $HOME/.userserver.txt | base64 --decode) > /dev/null 2>&1
