@@ -27,6 +27,7 @@ RUN . /etc/lsb-release && \
       ansible \
       bash-completion \
       rsync \
+      vi \
       nodejs && \
     rm -rf /var/lib/apt/lists/* && \
     apt clean
