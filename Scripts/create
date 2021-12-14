@@ -1,5 +1,12 @@
-#!/bin/bash
-oc whoami --show-token | base64 > $HOME/.usertoken.txt
+#!/bin/zsh
+oc whoami --show-token > /dev/null 2>&1
+status=$?
+if [ ${status} -ne 0 ]; then
+    echo "You are not logged in to an OpenShift cluster"
+    exit 1
+else
+    oc whoami --show-token | base64 > $HOME/.usertoken.txt
+fi
 oc new-project os-code-$(whoami) > /dev/null 2>&1
 echo "Creating environment..."
 oc create sa os-code-$(whoami) > /dev/null 2>&1
@@ -19,3 +26,4 @@ echo "Server will usually take a few minutes to deploy"
 echo "Your code server will be hosted at: https://$(oc get routes -n os-code-$(whoami) code-server -o=jsonpath='{ .spec.host }')"
 echo "You can see the status of your build and access credentials by running:"
 echo "os-code status"
+exit 0

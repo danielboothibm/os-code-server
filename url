@@ -1,0 +1,6 @@
+#!/bin/sh
+echo Enter url:
+read url
+open $url
+
+#comment
