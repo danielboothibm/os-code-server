@@ -1,1 +1,0 @@
-oc new-app --name=code-server --strategy docker https://github.com/danielboothibm/os-code-server.git --env PASSWORD=$(openssl rand -base64 16) --as-deployment-config -l app=code-server | grep created
