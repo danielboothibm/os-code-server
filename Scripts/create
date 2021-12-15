@@ -15,7 +15,7 @@ oc whoami --show-server | base64 > $HOME/.server.txt
 oc sa get-token os-code-$(whoami) | base64 > $HOME/.token.txt
 adm policy add-scc-to-user privileged -z os-code-$(whoami) > /dev/null 2>&1
 oc login --token=$(cat $HOME/.token.txt | base64 --decode) --server=$(cat $HOME/.server.txt | base64 --decode) --insecure-skip-tls-verify="false" > /dev/null 2>&1 || { echo "login not ok. Exit code: $?"; exit 1; }
-oc project os-code-$(whoami) >/dev/null 2>&1
+oc project os-code-$(whoami) > /dev/null 2>&1
 oc new-app --name=code-server --strategy docker https://github.com/danielboothibm/os-code-server.git --as-deployment-config -l app=code-server | grep created
 oc create route edge --service=code-server > /dev/null 2>&1
 echo "Code server initialized..."
