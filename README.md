@@ -1,8 +1,11 @@
 # os-code-server
-code server for openshift \n
+code server for openshift 
+
 These scripts can be used to create and manage a live vs code environment into an OpenShift cluster.
 
 This can be helpful when implementing pair programming practices.
+
+The OpenShift CLI is required for these scripts to work.
 
 ## Limitations
 
@@ -18,6 +21,10 @@ the path to itself.
 '''
 SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 '''
+
+3. Scripts currently use public to deploy the application
+Currently the scripts create the code server using a dockerfile which is stored in a public repo on github.com. This makes it easy to create the deployment
+because it does not need any credentials. This allows the application to be created without the use of any secret. Ideally however would deploy the application from the git repo in github.ibm.com (which would require credentials in OpenShift) or alternativley deploy directly from the dockerfile stored locally on users machine.
 
 ## Improvements/Amendments to be made
 
