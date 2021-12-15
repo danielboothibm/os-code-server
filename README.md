@@ -1,5 +1,5 @@
 # os-code-server
-code server for openshift
+code server for openshift \n
 These scripts can be used to create and manage a live vs code environment into an OpenShift cluster.
 
 This can be helpful when implementing pair programming practices.
