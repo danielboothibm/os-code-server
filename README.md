@@ -15,7 +15,9 @@ The scripts will only work if they are placed in the users home directory. This 
 the HOME environment variable followed by a prefixed path. For example the update script. I can improve this by adding a variable in the scripts which can identify
 the path to itself.
 
-'''SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"'''
+'''
+SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+'''
 
 ## Improvements/Amendments to be made
 
