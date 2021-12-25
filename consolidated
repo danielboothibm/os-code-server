@@ -1,6 +1,5 @@
 #!/bin/bash
 SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
-status=$?
 
 function reset(){
     if [ -d "$HOME/.os-code" ]; then
@@ -97,13 +96,21 @@ function upload(){
 
 function open(){
     oc whoami --show-token > /dev/null 2>&1
+    status=$?
     if [ ${status} -eq 0 ]; then
         oc whoami --show-token | base64 > $HOME/.usertoken.txt
         oc whoami --show-server | base64 > $HOME/.userserver.txt
         login=true
     fi
-    oc login --token=$(cat $HOME/.token.txt | base64 --decode) --server=$(cat $HOME/.server.txt | base64 --decode) --insecure-skip-tls-verify="false" > /dev/null 2>&1 || { echo "login not ok. Exit code: $?"; exit 1; }
-    open https://$(oc get routes -n os-code-$(whoami) code-server -o=jsonpath='{ .spec.host }')
+    if [ -f $HOME/.server.txt ] && [ -f $HOME/token.txt ];then
+        oc login --token=$(cat $HOME/.token.txt | base64 --decode) --server=$(cat $HOME/.server.txt | base64 --decode) --insecure-skip-tls-verify="false" > /dev/null 2>&1 || { echo "login not ok. Exit code: $?"; exit 1; }
+        open https://$(oc get routes -n os-code-$(whoami) code-server -o=jsonpath='{ .spec.host }')
+    elif [ ! -f $HOME/.server.txt ] && [ ! -f $HOME/.token.txt ]; then
+        echo "No code server configuration found."
+        echo ""
+        echo "Try running: "
+        echo "os-code create"
+    fi
     oc logout > /dev/null 2>&1
     if [ "${login}" == "true" ]; then
         oc login --token=$(cat $HOME/.usertoken.txt | base64 --decode) --server=$(cat $HOME/.userserver.txt | base64 --decode) > /dev/null 2>&1
@@ -140,5 +147,41 @@ function update(){
     git pull > /dev/null 2>&1
     echo "Application up to date"
 }
+
+function help(){
+    echo "Usage: os-code [OPTION]"
+    echo ""
+    echo "This client helps you create and manage a live vs-code environment hosted on OpenShift cluster."
+    echo "This tool is designed to facilitate remote pair programming."
+    echo ""
+    echo "Options available: "
+    echo "  Create     Creates a new code server on currently authenticated openshift cluster"
+    echo "  Status     Shows status of code server"
+    echo "  Destroy    Destroys the most recently deployed code server"
+    echo "  Update     Downloads latest updates for os-code client"
+    echo "  Upload     Uploads present working directory to code server"
+    echo "  Download   Downloads all files from code server and stores them in a local directory"
+    echo "  Open       Opens the code server in your default web browser"
+    echo "  Reset      Resets live code server configuration from local machine"
+}
+
+if declare -f "$1" > /dev/null
+then
+    "$@"
+elif [ -n "$1" ]; then
+    echo "Unrecognized command"
+    echo ""
+    echo "You can see all available options by running:"
+    echo "os-code help"
+    exit 1;
+else
+	echo "NOTE: To initialize a new code you must be authenticated with a cluster in your terminal session"
+    echo ""
+    echo "Options available: "
+    echo "  Create (Creates a new code server on currently authenticated openshift cluster)"
+    echo "  Status (Shows status of code server)"
+    echo "  Destroy (Destroys the most recently deployed code server)"
+    echo "  Update"
+fi
 
 exit 0;
