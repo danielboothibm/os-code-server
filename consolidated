@@ -1,8 +1,144 @@
 #!/bin/bash
 SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
+status=$?
 
 function reset(){
     if [ -d "$HOME/.os-code" ]; then
         rm -rf $HOME/.os-code
     fi
 }
+
+function create(){
+    if [ ${status} -ne 0 ]; then
+        echo "You are not logged in to an OpenShift cluster"
+        exit 1
+    else
+        oc whoami --show-token | base64 > $HOME/.usertoken.txt
+    fi
+    oc new-project os-code-$(whoami) > /dev/null 2>&1
+    echo "Creating environment..."
+    oc create sa os-code-$(whoami) > /dev/null 2>&1
+    oc adm policy add-cluster-role-to-user cluster-admin -z os-code-$(whoami) > /dev/null 2>&1
+    oc whoami --show-server | base64 > $HOME/.server.txt
+    oc sa get-token os-code-$(whoami) | base64 > $HOME/.token.txt
+    adm policy add-scc-to-user privileged -z os-code-$(whoami) > /dev/null 2>&1
+    oc login --token=$(cat $HOME/.token.txt | base64 --decode) --server=$(cat $HOME/.server.txt | base64 --decode) --insecure-skip-tls-fverify="false" > /dev/null 2>&1 || { echo "login not ok. Exit code: $?"; exit 1; }
+    oc project os-code-$(whoami) > /dev/null 2>&1
+    oc new-app --name=code-server --strategy docker https://github.com/danielboothibm/os-code-server.git --as-deployment-config -l app=code-server | grep created
+    oc create route edge --service=code-server > /dev/null 2>&1
+    echo "Code server initialized..."
+    oc logout > /dev/null 2>&1
+    oc login --token=$(cat $HOME/.usertoken.txt | base64 --decode) --server=$(cat $HOME/.server.txt | base64 --decode) > /dev/null 2>&1
+    rm -rf $HOME/.usertoken.txt > /dev/null 2>&1
+    echo "Server will usually take a few minutes to deploy"
+    echo "Your code server will be hosted at: https://$(oc get routes -n os-code-$(whoami) code-server -o=jsonpath='{ .spec.host }')"
+    echo "You can see the status of your build and access credentials by running:"
+    echo "os-code status"
+}
+
+function destroy(){
+    oc whoami --show-token > /dev/null 2>&1
+    if [ ${status} -eq 0 ]; then
+        oc whoami --show-token | base64 > $HOME/.usertoken.txt
+        oc whoami --show-server | base64 > $HOME/.userserver.txt
+        login=true
+    fi
+    oc login --token=$(cat $HOME/.token.txt | base64 --decode) --server=$(cat $HOME/.server.txt | base64 --decode) --insecure-skip-tls-verify="false" > /dev/null 2>&1 || { echo "login not ok. Exit code: $?"; exit 1; }
+    echo "Deleting server..."
+    oc delete all --all -n os-code-$(whoami) > /dev/null 2>&1
+    oc project default > /dev/null 2>&1
+    oc delete project/os-code-$(whoami) > /dev/null 2>&1
+    oc logout > /dev/null 2>&1
+    if [ "${login}" == "true" ]; then
+        oc login --token=$(cat $HOME/.usertoken.txt | base64 --decode) --server=$(cat $HOME/.userserver.txt | base64 --decode) > /dev/null 2>&1
+        rm -rf $HOME/.usertoken.txt $HOME/.userserver.txt > /dev/null 2>&1
+    fi
+    sleep 7 
+    echo "Code server deleted"
+}
+
+function download(){
+    oc whoami --show-token > /dev/null 2>&1
+    if [ ${status} -eq 0 ]; then
+        oc whoami --show-token | base64 > $HOME/.usertoken.txt
+        oc whoami --show-server | base64 > $HOME/.userserver.txt
+        login=true
+    fi
+    echo "Pulling..."
+    oc login --token=$(cat $HOME/.token.txt | base64 --decode) --server=$(cat $HOME/.server.txt | base64 --decode) --insecure-skip-tls-verify="false" > /dev/null 2>&1 || { echo "login not ok. Exit code: $?"; exit 1; }
+    oc project os-code-$(whoami) > /dev/null 2>&1
+    rsync -a --rsh='oc rsh' $(oc -n os-code-$(whoami) get pod -l "app=code-server" -o jsonpath='{.items[*].metadata.name}'):/home/coder/projects/ $(pwd) > /dev/null 2>&1
+    oc logout > /dev/null 2>&1
+    if [ "${login}" == "true" ]; then
+        oc login --token=$(cat $HOME/.usertoken.txt | base64 --decode) --server=$(cat $HOME/.userserver.txt | base64 --decode) > /dev/null 2>&1
+        rm -rf $HOME/.usertoken.txt $HOME/.userserver.txt > /dev/null 2>&1
+    fi
+    echo "Complete"
+}
+
+function upload(){
+    oc whoami --show-token > /dev/null 2>&1
+    if [ ${status} -eq 0 ]; then
+        oc whoami --show-token | base64 > $HOME/.usertoken.txt
+        oc whoami --show-server | base64 > $HOME/.userserver.txt
+        login=true
+    fi
+    echo "Pushing..."
+    oc login --token=$(cat $HOME/.token.txt | base64 --decode) --server=$(cat $HOME/.server.txt | base64 --decode) --insecure-skip-tls-verify="false" > /dev/null 2>&1 || { echo "login not ok. Exit code: $?"; exit 1; }
+    oc project os-code-$(whoami) > /dev/null 2>&1
+    rsync -a --rsh='oc rsh' $(pwd) $(oc -n os-code-$(whoami) get pod -l "app=code-server" -o jsonpath='{.items[*].metadata.name}'):/home/coder/projects > /dev/null 2>&1
+    oc logout > /dev/null 2>&1
+    if [ "${login}" == "true" ]; then
+        oc login --token=$(cat $HOME/.usertoken.txt | base64 --decode) --server=$(cat $HOME/.userserver.txt | base64 --decode) > /dev/null 2>&1
+        rm -rf $HOME/.usertoken.txt $HOME/.userserver.txt > /dev/null 2>&1
+    fi
+    echo "Complete"
+}
+
+function open(){
+    oc whoami --show-token > /dev/null 2>&1
+    if [ ${status} -eq 0 ]; then
+        oc whoami --show-token | base64 > $HOME/.usertoken.txt
+        oc whoami --show-server | base64 > $HOME/.userserver.txt
+        login=true
+    fi
+    oc login --token=$(cat $HOME/.token.txt | base64 --decode) --server=$(cat $HOME/.server.txt | base64 --decode) --insecure-skip-tls-verify="false" > /dev/null 2>&1 || { echo "login not ok. Exit code: $?"; exit 1; }
+    open https://$(oc get routes -n os-code-$(whoami) code-server -o=jsonpath='{ .spec.host }')
+    oc logout > /dev/null 2>&1
+    if [ "${login}" == "true" ]; then
+        oc login --token=$(cat $HOME/.usertoken.txt | base64 --decode) --server=$(cat $HOME/.userserver.txt | base64 --decode) > /dev/null 2>&1
+        rm -rf $HOME/.usertoken.txt $HOME/.userserver.txt > /dev/null 2>&1
+    fi
+}
+
+function status(){
+    oc whoami --show-token > /dev/null 2>&1
+    if [ ${status} -eq 0 ]; then
+        oc whoami --show-token | base64 > $HOME/.usertoken.txt
+        oc whoami --show-server | base64 > $HOME/.userserver.txt
+        login=true
+    fi
+    oc login --token=$(cat $HOME/.token.txt | base64 --decode) --server=$(cat $HOME/.server.txt | base64 --decode) --insecure-skip-tls-verify="false" > /dev/null 2>&1 || { echo "login not ok. Exit code: $?"; exit 1; }
+    oc project os-code-$(whoami) > /dev/null 2>&1
+    echo "Build status: $(oc -n os-code-$(whoami) describe build -l "app=code-server" | grep Status | awk '{print $2}')"
+    echo ""
+    echo "Code server is accepting traffic at:"
+    echo "https://$(oc get routes code-server -o=jsonpath='{ .spec.host }')"
+    echo ""
+    echo "The password to sign in is:"
+    oc exec $(oc -n os-code-$(whoami) get pod -l "app=code-server" -o jsonpath='{.items[*].metadata.name}') -- cat /home/coder/.config/code-server/config.yaml | grep password: | awk '{print $2}'
+    oc logout > /dev/null 2>&1
+    if [ "${login}" == "true" ]; then
+        oc login --token=$(cat $HOME/.usertoken.txt | base64 --decode) --server=$(cat $HOME/.userserver.txt | base64 --decode) > /dev/null 2>&1
+        rm -rf $HOME/.usertoken.txt $HOME/.userserver.txt > /dev/null 2>&1
+    fi
+}
+
+function update(){
+    echo "Pulling updates"
+    cd $HOME/os-code-server
+    git pull > /dev/null 2>&1
+    echo "Application up to date"
+}
+
+exit 0;
