@@ -5,11 +5,12 @@ function reset(){
     if [ -d "$HOME/.os-code" ]; then
         rm -rf $HOME/.os-code
     fi
+    exit 0;
 }
 
 function create(){
     oc whoami --show-token > /dev/null 2>&1
-    status=$?
+    local status=$?
     if [ ${status} -ne 0 ]; then
         echo "You are not logged in to an OpenShift cluster."
         exit 1
@@ -35,6 +36,7 @@ function create(){
     echo "Your code server will be hosted at: https://$(oc get routes -n os-code-$(whoami) code-server -o=jsonpath='{ .spec.host }')"
     echo "You can see the status of your build and access credentials by running:"
     echo "os-code status"
+    exit 0;
 }
 
 function destroy(){
@@ -46,7 +48,7 @@ function destroy(){
         exit 1;
     fi
     oc whoami --show-token > /dev/null 2>&1
-    status=$?
+    local status=$?
     if [ ${status} -eq 0 ]; then
         oc whoami --show-token | base64 > $HOME/.usertoken.txt
         oc whoami --show-server | base64 > $HOME/.userserver.txt
@@ -66,6 +68,7 @@ function destroy(){
     fi
     sleep 7
     echo "Code server deleted"
+    exit 0;
 }
 
 function download(){
@@ -77,7 +80,7 @@ function download(){
         exit 1;
     fi
     oc whoami --show-token > /dev/null 2>&1
-    status=$?
+    local status=$?
     if [ ${status} -eq 0 ]; then
         oc whoami --show-token | base64 > $HOME/.usertoken.txt
         oc whoami --show-server | base64 > $HOME/.userserver.txt
@@ -93,6 +96,7 @@ function download(){
         rm -rf $HOME/.usertoken.txt $HOME/.userserver.txt > /dev/null 2>&1
     fi
     echo "Complete"
+    exit 0;
 }
 
 function upload(){
@@ -104,7 +108,7 @@ function upload(){
         exit 1;
     fi
     oc whoami --show-token > /dev/null 2>&1
-    status=$?
+    local status=$?
     if [ ${status} -eq 0 ]; then
         oc whoami --show-token | base64 > $HOME/.usertoken.txt
         oc whoami --show-server | base64 > $HOME/.userserver.txt
@@ -120,6 +124,7 @@ function upload(){
         rm -rf $HOME/.usertoken.txt $HOME/.userserver.txt > /dev/null 2>&1
     fi
     echo "Complete"
+    return;
 }
 
 function open(){
@@ -131,7 +136,7 @@ function open(){
         exit 1;
     fi
     oc whoami --show-token > /dev/null 2>&1
-    status=$?
+    local status=$?
     if [ ${status} -eq 0 ]; then
         oc whoami --show-token | base64 > $HOME/.usertoken.txt
         oc whoami --show-server | base64 > $HOME/.userserver.txt
@@ -144,6 +149,7 @@ function open(){
         oc login --token=$(cat $HOME/.usertoken.txt | base64 --decode) --server=$(cat $HOME/.userserver.txt | base64 --decode) > /dev/null 2>&1
         rm -rf $HOME/.usertoken.txt $HOME/.userserver.txt > /dev/null 2>&1
     fi
+    exit 0;
 }
 
 function status(){
@@ -155,7 +161,7 @@ function status(){
         exit 1;
     fi
     oc whoami --show-token > /dev/null 2>&1
-    status=$?
+    local status=$?
     if [ ${status} -eq 0 ]; then
         oc whoami --show-token | base64 > $HOME/.usertoken.txt
         oc whoami --show-server | base64 > $HOME/.userserver.txt
@@ -175,6 +181,7 @@ function status(){
         oc login --token=$(cat $HOME/.usertoken.txt | base64 --decode) --server=$(cat $HOME/.userserver.txt | base64 --decode) > /dev/null 2>&1
         rm -rf $HOME/.usertoken.txt $HOME/.userserver.txt > /dev/null 2>&1
     fi
+    exit 0;
 }
 
 function update(){
