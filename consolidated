@@ -8,8 +8,10 @@ function reset(){
 }
 
 function create(){
+    oc whoami --show-token > /dev/null 2>&1
+    status=$?
     if [ ${status} -ne 0 ]; then
-        echo "You are not logged in to an OpenShift cluster"
+        echo "You are not logged in to an OpenShift cluster."
         exit 1
     else
         oc whoami --show-token | base64 > $HOME/.usertoken.txt
@@ -20,8 +22,8 @@ function create(){
     oc adm policy add-cluster-role-to-user cluster-admin -z os-code-$(whoami) > /dev/null 2>&1
     oc whoami --show-server | base64 > $HOME/.server.txt
     oc sa get-token os-code-$(whoami) | base64 > $HOME/.token.txt
-    adm policy add-scc-to-user privileged -z os-code-$(whoami) > /dev/null 2>&1
-    oc login --token=$(cat $HOME/.token.txt | base64 --decode) --server=$(cat $HOME/.server.txt | base64 --decode) --insecure-skip-tls-fverify="false" > /dev/null 2>&1 || { echo "login not ok. Exit code: $?"; exit 1; }
+    oc adm policy add-scc-to-user privileged -z os-code-$(whoami) > /dev/null 2>&1
+    oc login --token=$(cat $HOME/.token.txt | base64 --decode) --server=$(cat $HOME/.server.txt | base64 --decode) --insecure-skip-tls-verify="false" > /dev/null 2>&1 || { echo "login not ok. Exit code: $?"; exit 1; }
     oc project os-code-$(whoami) > /dev/null 2>&1
     oc new-app --name=code-server --strategy docker https://github.com/danielboothibm/os-code-server.git --as-deployment-config -l app=code-server | grep created
     oc create route edge --service=code-server > /dev/null 2>&1
@@ -36,7 +38,15 @@ function create(){
 }
 
 function destroy(){
+    if [ ! -f $HOME/.server.txt ] && [ ! -f $HOME/.token.txt ]; then
+        echo "No code server configuration found."
+        echo ""
+        echo "Try running: "
+        echo "os-code create"
+        exit 1;
+    fi
     oc whoami --show-token > /dev/null 2>&1
+    status=$?
     if [ ${status} -eq 0 ]; then
         oc whoami --show-token | base64 > $HOME/.usertoken.txt
         oc whoami --show-server | base64 > $HOME/.userserver.txt
@@ -47,17 +57,27 @@ function destroy(){
     oc delete all --all -n os-code-$(whoami) > /dev/null 2>&1
     oc project default > /dev/null 2>&1
     oc delete project/os-code-$(whoami) > /dev/null 2>&1
+    rm $HOME/.server.txt
+    rm $HOME/.token.txt
     oc logout > /dev/null 2>&1
     if [ "${login}" == "true" ]; then
         oc login --token=$(cat $HOME/.usertoken.txt | base64 --decode) --server=$(cat $HOME/.userserver.txt | base64 --decode) > /dev/null 2>&1
         rm -rf $HOME/.usertoken.txt $HOME/.userserver.txt > /dev/null 2>&1
     fi
-    sleep 7 
+    sleep 7
     echo "Code server deleted"
 }
 
 function download(){
+    if [ ! -f $HOME/.server.txt ] && [ ! -f $HOME/.token.txt ]; then
+        echo "No code server configuration found."
+        echo ""
+        echo "Try running: "
+        echo "os-code create"
+        exit 1;
+    fi
     oc whoami --show-token > /dev/null 2>&1
+    status=$?
     if [ ${status} -eq 0 ]; then
         oc whoami --show-token | base64 > $HOME/.usertoken.txt
         oc whoami --show-server | base64 > $HOME/.userserver.txt
@@ -76,7 +96,15 @@ function download(){
 }
 
 function upload(){
+    if [ ! -f $HOME/.server.txt ] && [ ! -f $HOME/.token.txt ]; then
+        echo "No code server configuration found."
+        echo ""
+        echo "Try running: "
+        echo "os-code create"
+        exit 1;
+    fi
     oc whoami --show-token > /dev/null 2>&1
+    status=$?
     if [ ${status} -eq 0 ]; then
         oc whoami --show-token | base64 > $HOME/.usertoken.txt
         oc whoami --show-server | base64 > $HOME/.userserver.txt
@@ -95,6 +123,13 @@ function upload(){
 }
 
 function open(){
+    if [ ! -f $HOME/.server.txt ] && [ ! -f $HOME/.token.txt ]; then
+        echo "No code server configuration found."
+        echo ""
+        echo "Try running: "
+        echo "os-code create"
+        exit 1;
+    fi
     oc whoami --show-token > /dev/null 2>&1
     status=$?
     if [ ${status} -eq 0 ]; then
@@ -102,15 +137,8 @@ function open(){
         oc whoami --show-server | base64 > $HOME/.userserver.txt
         login=true
     fi
-    if [ -f $HOME/.server.txt ] && [ -f $HOME/token.txt ];then
-        oc login --token=$(cat $HOME/.token.txt | base64 --decode) --server=$(cat $HOME/.server.txt | base64 --decode) --insecure-skip-tls-verify="false" > /dev/null 2>&1 || { echo "login not ok. Exit code: $?"; exit 1; }
-        open https://$(oc get routes -n os-code-$(whoami) code-server -o=jsonpath='{ .spec.host }')
-    elif [ ! -f $HOME/.server.txt ] && [ ! -f $HOME/.token.txt ]; then
-        echo "No code server configuration found."
-        echo ""
-        echo "Try running: "
-        echo "os-code create"
-    fi
+    oc login --token=$(cat $HOME/.token.txt | base64 --decode) --server=$(cat $HOME/.server.txt | base64 --decode) --insecure-skip-tls-verify="false" > /dev/null 2>&1 || { echo "login not ok. Exit code: $?"; exit 1; }
+    open https://$(oc get routes -n os-code-$(whoami) code-server -o=jsonpath='{ .spec.host }')
     oc logout > /dev/null 2>&1
     if [ "${login}" == "true" ]; then
         oc login --token=$(cat $HOME/.usertoken.txt | base64 --decode) --server=$(cat $HOME/.userserver.txt | base64 --decode) > /dev/null 2>&1
@@ -119,7 +147,15 @@ function open(){
 }
 
 function status(){
+    if [ ! -f $HOME/.server.txt ] && [ ! -f $HOME/.token.txt ]; then
+        echo "No code server configuration found."
+        echo ""
+        echo "Try running: "
+        echo "os-code create"
+        exit 1;
+    fi
     oc whoami --show-token > /dev/null 2>&1
+    status=$?
     if [ ${status} -eq 0 ]; then
         oc whoami --show-token | base64 > $HOME/.usertoken.txt
         oc whoami --show-server | base64 > $HOME/.userserver.txt
@@ -160,7 +196,7 @@ function help(){
     echo "  Destroy    Destroys the most recently deployed code server"
     echo "  Update     Downloads latest updates for os-code client"
     echo "  Upload     Uploads present working directory to code server"
-    echo "  Download   Downloads all files from code server and stores them in a local directory"
+    echo "  Download   Downloads all remote files from code server and stores them in a local directory"
     echo "  Open       Opens the code server in your default web browser"
     echo "  Reset      Resets live code server configuration from local machine"
 }
