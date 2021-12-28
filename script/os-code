@@ -1,12 +1,12 @@
 #!/bin/bash
 SCRIPTPATH="$( cd -- "$(dirname "$0")" >/dev/null 2>&1 ; pwd -P )"
 
-function reset(){
-    if [ -d "$HOME/.os-code" ]; then
-        rm -rf $HOME/.os-code
-    fi
-    exit 0;
-}
+# function reset(){
+#     if [ -d "$HOME/.os-code" ]; then
+#         rm -rf $HOME/.os-code
+#     fi
+#     exit 0;
+# }
 
 function create(){
     oc whoami --show-token > /dev/null 2>&1
@@ -186,7 +186,7 @@ function status(){
 
 function update(){
     echo "Pulling updates"
-    cd $HOME/os-code-server
+    cd $SCRIPTPATH
     git pull > /dev/null 2>&1
     echo "Application up to date"
     exit 0;
@@ -231,6 +231,7 @@ else
     echo "  Status (Shows status of code server)"
     echo "  Destroy (Destroys the most recently deployed code server)"
     echo "  Update"
+    echo "  Help"
 fi
 
 exit 0;
