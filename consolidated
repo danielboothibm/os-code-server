@@ -124,10 +124,10 @@ function upload(){
         rm -rf $HOME/.usertoken.txt $HOME/.userserver.txt > /dev/null 2>&1
     fi
     echo "Complete"
-    return;
+    exit 0;
 }
 
-function open(){
+function callOpen(){ 
     if [ ! -f $HOME/.server.txt ] && [ ! -f $HOME/.token.txt ]; then
         echo "No code server configuration found."
         echo ""
@@ -189,6 +189,7 @@ function update(){
     cd $HOME/os-code-server
     git pull > /dev/null 2>&1
     echo "Application up to date"
+    exit 0;
 }
 
 function help(){
@@ -206,7 +207,12 @@ function help(){
     echo "  Download   Downloads all remote files from code server and stores them in a local directory"
     echo "  Open       Opens the code server in your default web browser"
     echo "  Reset      Resets live code server configuration from local machine"
+    exit 0;
 }
+
+if [ "$1" == open ];then
+    callOpen
+fi
 
 if declare -f "$1" > /dev/null
 then
