@@ -32,6 +32,8 @@ RUN . /etc/lsb-release && \
     rm -rf /var/lib/apt/lists/* && \
     apt clean
 
+RUN ansible --version
+
 RUN locale-gen en_US.UTF-8 && \
     npm install --global yarn && \
     cd /tmp && \
